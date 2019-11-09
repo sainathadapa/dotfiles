@@ -1,0 +1,2 @@
+- `git clone --recursive ...`
+- `ln -s ... ...`
