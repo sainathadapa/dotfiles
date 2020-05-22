@@ -56,4 +56,8 @@ ctrl + shift - p : "${HOME}"/.config/yabai/scripts/cycle_projects_reverse.sh
 # opens iTerm2
 ctrl - return : "${HOME}"/.config/yabai/scripts/open_iterm2.sh
 
+# Scratchpad - terminal
+ctrl - z : "${HOME}"/.config/yabai/scripts/scratchpad.sh
+
+# move the windows by 90deg
 cmd - tab : yabai -m space --rotate 270
