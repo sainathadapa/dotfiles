@@ -1,8 +1,6 @@
 # Switch displays
-# ctrl - tab : yabai -m display --focus recent
-# ctrl - tab : "yabai -m query --displays --display | jq '.index' | awk '{ print ($1 == 2 ? 1 : 2) }' | xargs yabai -m display --focus"
 ctrl - tab : "${HOME}"/.config/yabai/scripts/switch_displays.sh
-# ^ works at least when launched from shell
+# ^ works only when launched from shell
 
 # Move current container to next display and focus that display
 cmd + ctrl - tab : yabai -m window --display recent
@@ -37,11 +35,19 @@ ctrl - j : yabai -m window --focus south
 ctrl - k : yabai -m window --focus north
 
 # move focused window to occupy the left half of the screen. 
-ctrl + shift - h: yabai -m window --grid 1:2:0:0:1:1
-ctrl + shift - l: yabai -m window --grid 1:2:1:0:1:1
-ctrl + shift - j: yabai -m window --grid 2:1:0:1:1:1
-ctrl + shift - k: yabai -m window --grid 2:1:0:0:1:1
+# ctrl + shift - h: yabai -m window --grid 1:2:0:0:1:1
+# ctrl + shift - l: yabai -m window --grid 1:2:1:0:1:1
+# ctrl + shift - j: yabai -m window --grid 2:1:0:1:1:1
+# ctrl + shift - k: yabai -m window --grid 2:1:0:0:1:1
+
+# zoom a window
 ctrl - f: yabai -m window --toggle zoom-fullscreen
+
+# swap a window with an adjacent window
+ctrl + shift - h: yabai -m window --swap west
+ctrl + shift - l: yabai -m window --swap east
+ctrl + shift - j: yabai -m window --swap south
+ctrl + shift - k: yabai -m window --swap north
 
 # Switch projects (D1/D6 -> D2/D7 -> ... -> D5/D10 -> D1/D6)
 ctrl - p : "${HOME}"/.config/yabai/scripts/cycle_projects.sh
@@ -49,3 +55,5 @@ ctrl + shift - p : "${HOME}"/.config/yabai/scripts/cycle_projects_reverse.sh
 
 # opens iTerm2
 ctrl - return : "${HOME}"/.config/yabai/scripts/open_iterm2.sh
+
+cmd - tab : yabai -m space --rotate 270
