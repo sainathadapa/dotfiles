@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
 
 # Detects if iTerm2 is running
 if ! pgrep -f "iTerm" > /dev/null; then

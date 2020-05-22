@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
+
 currentSpace="$(yabai -m query --spaces --space | jq '.index')"
 # echo $currentSpace
 
