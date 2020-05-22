@@ -1,30 +1,35 @@
 #!/usr/bin/env bash
 currentSpace="$(yabai -m query --spaces --space | jq '.index')"
+# echo $currentSpace
 
-if [ $currentSpace -ge 6 ] && [ $currentSpace -lt 10 ]
-then
-  leftSpace="$(($currentSpace + 1))"
-  rightSpace="$(($currentSpace - 4))"
-  yabai -m space --focus $rightSpace && yabai -m space --focus $leftSpace
+lastSpaceFirstMonitor="$((8))"
+lastSpaceSecondMonitor="$((16))"
+
+if [ $currentSpace -le $lastSpaceFirstMonitor ]; then
+    currentFirstMonitorSpace=$currentSpace
+    currentSecondMonitorSpace="$(($currentSpace + $lastSpaceSecondMonitor - $lastSpaceFirstMonitor))"
+else
+    currentFirstMonitorSpace="$(($currentSpace - $lastSpaceSecondMonitor + $lastSpaceFirstMonitor))"
+    currentSecondMonitorSpace=$currentSpace
 fi
+# echo $currentFirstMonitorSpace
+# echo $currentSecondMonitorSpace
 
-if [ $currentSpace -eq 10 ]
-then
-  leftSpace="$((6))"
-  rightSpace="$((1))"
-  yabai -m space --focus $rightSpace && yabai -m space --focus $leftSpace
+if [ $currentFirstMonitorSpace -ge $lastSpaceFirstMonitor ]; then
+    newFirstMonitorSpace="$((1))"
+else
+    newFirstMonitorSpace="$(($currentFirstMonitorSpace + 1))"
 fi
-
-if [ $currentSpace -ge 1 ] && [ $currentSpace -lt 5 ]
-then
-  leftSpace="$(($currentSpace + 6))"
-  rightSpace="$(($currentSpace + 1))"
-  yabai -m space --focus $leftSpace && yabai -m space --focus $rightSpace
+if [ $currentSecondMonitorSpace -ge $lastSpaceSecondMonitor ]; then
+    newSecondMonitorSpace="$(($lastSpaceFirstMonitor + 1))"
+else
+    newSecondMonitorSpace="$(($currentSecondMonitorSpace + 1))"
 fi
+# echo $newFirstMonitorSpace
+# echo $newSecondMonitorSpace
 
-if [ $currentSpace -eq 5 ]
-then
-  leftSpace="$((6))"
-  rightSpace="$((1))"
-  yabai -m space --focus $leftSpace && yabai -m space --focus $rightSpace
+if [ $currentSpace -le $lastSpaceFirstMonitor ]; then
+    yabai -m space --focus $newSecondMonitorSpace && yabai -m space --focus $newFirstMonitorSpace
+else
+    yabai -m space --focus $newFirstMonitorSpace && yabai -m space --focus $newSecondMonitorSpace
 fi
