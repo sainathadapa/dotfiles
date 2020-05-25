@@ -53,6 +53,9 @@ ctrl + shift - k: yabai -m window --swap north
 ctrl - p : "${HOME}"/.config/yabai/scripts/cycle_projects.sh
 ctrl + shift - p : "${HOME}"/.config/yabai/scripts/cycle_projects_reverse.sh
 
+# Swap spaces across two displays
+ctrl + shift - tab : "${HOME}"/.config/yabai/scripts/swap_spaces.py
+
 # opens iTerm2
 ctrl - return : "${HOME}"/.config/yabai/scripts/open_iterm2.sh
 
