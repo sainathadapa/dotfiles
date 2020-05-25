@@ -2,8 +2,24 @@
 set -e
 set -o pipefail
 
+numDisplays="$(yabai -m query --displays | jq 'length')"
 currentSpace="$(yabai -m query --spaces --space | jq '.index')"
-# echo $currentSpace
+
+# If there is only one display, go to the next display
+if [ $numDisplays -eq 1 ]; then
+  lastSpace="$(yabai -m query --spaces | jq '.[] | .index' | sort -nr | head -n1)" 
+  if [ $currentSpace -eq $lastSpace ]; then
+    yabai -m space --focus 1
+  else
+    yabai -m space --focus next
+  fi
+  exit 1
+fi
+
+# If there are more than two displays, exit
+if [ $numDisplays -gt 2 ]; then
+  exit 0
+fi
 
 lastSpaceFirstMonitor="$((8))"
 lastSpaceSecondMonitor="$((16))"
