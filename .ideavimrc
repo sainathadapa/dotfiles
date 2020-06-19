@@ -1,0 +1,33 @@
+
+" show a visual line under the cursor's current line 
+set cursorline
+" show the matching part of the pair for [] {} and ()
+set showmatch
+
+
+"hybrid line numbering mode
+set number
+set relativenumber
+
+
+" search as characters are entered
+set incsearch 
+" highlight matches
+set hlsearch          
+" searches are case insensitive...
+set ignorecase    
+" ... unless they contain at least one capital letter
+set smartcase     
+
+
+"switch : and ;
+nnoremap ; :
+nnoremap : ;
+
+
+" Minimum number of lines to keep above/below cursor.  Keep lines above and
+" below the screen when scrolling up or down. This is useful so you have some
+" context what you’re scrolling to.
+"
+" Also see 'sidescrolloff'.
+set scrolloff=5
