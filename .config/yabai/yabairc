@@ -26,6 +26,7 @@ yabai -m config window_gap                   0
 yabai -m rule --add app=Emacs manage=on
 
 # give some space for the status bar
-yabai -m config top_padding 26
+# yabai -m config top_padding 26
+yabai -m config external_bar all:26:0
 
 echo "yabai configuration loaded.."
