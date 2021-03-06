@@ -16,8 +16,8 @@ if [ $numDisplays -eq 1 ]; then
   exit 1
 fi
 
-# If there are more than two displays, exit
-if [ $numDisplays -gt 2 ]; then
+# If there are more than three displays, exit
+if [ $numDisplays -gt 3 ]; then
   exit 0
 fi
 
