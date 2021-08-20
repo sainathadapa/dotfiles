@@ -16,6 +16,12 @@ ctrl - 7 : "${HOME}"/.config/yabai/scripts/focus_space_by_index.sh 7
 ctrl - 8 : "${HOME}"/.config/yabai/scripts/focus_space_by_index.sh 8
 ctrl - 9 : "${HOME}"/.config/yabai/scripts/focus_space_by_index.sh 9
 ctrl - 0 : "${HOME}"/.config/yabai/scripts/focus_space_by_index.sh 10
+ctrl - q : "${HOME}"/.config/yabai/scripts/focus_space_by_index.sh 11
+ctrl - w : "${HOME}"/.config/yabai/scripts/focus_space_by_index.sh 12
+ctrl - e : "${HOME}"/.config/yabai/scripts/focus_space_by_index.sh 13
+ctrl - r : "${HOME}"/.config/yabai/scripts/focus_space_by_index.sh 14
+ctrl - t : "${HOME}"/.config/yabai/scripts/focus_space_by_index.sh 15
+ctrl - y : "${HOME}"/.config/yabai/scripts/focus_space_by_index.sh 16
 
 # move window to space (index)
 ctrl + shift - 1 : "${HOME}"/.config/yabai/scripts/move_window_to_space_by_index.sh 1
@@ -28,6 +34,15 @@ ctrl + shift - 7 : "${HOME}"/.config/yabai/scripts/move_window_to_space_by_index
 ctrl + shift - 8 : "${HOME}"/.config/yabai/scripts/move_window_to_space_by_index.sh 8
 ctrl + shift - 9 : "${HOME}"/.config/yabai/scripts/move_window_to_space_by_index.sh 9
 ctrl + shift - 0 : "${HOME}"/.config/yabai/scripts/move_window_to_space_by_index.sh 10
+ctrl + shift - q : "${HOME}"/.config/yabai/scripts/move_window_to_space_by_index.sh 11
+ctrl + shift - w : "${HOME}"/.config/yabai/scripts/move_window_to_space_by_index.sh 12
+ctrl + shift - e : "${HOME}"/.config/yabai/scripts/move_window_to_space_by_index.sh 13
+ctrl + shift - r : "${HOME}"/.config/yabai/scripts/move_window_to_space_by_index.sh 14
+ctrl + shift - t : "${HOME}"/.config/yabai/scripts/move_window_to_space_by_index.sh 15
+ctrl + shift - y : "${HOME}"/.config/yabai/scripts/move_window_to_space_by_index.sh 16
+ctrl + shift - u : "${HOME}"/.config/yabai/scripts/move_window_to_space_by_index.sh 17
+ctrl + shift - i : "${HOME}"/.config/yabai/scripts/move_window_to_space_by_index.sh 18
+ctrl + shift - o : "${HOME}"/.config/yabai/scripts/move_window_to_space_by_index.sh 19
 
 # Focus window by direction
 ctrl - h : yabai -m window --focus west
@@ -59,6 +74,7 @@ ctrl + shift - tab : "${HOME}"/.config/yabai/scripts/swap_spaces.py
 
 # opens iTerm2
 ctrl - return : "${HOME}"/.config/yabai/scripts/open_iterm2.sh
+# ctrl - return : kitty
 
 # Scratchpad - terminal
 ctrl - z : "${HOME}"/.config/yabai/scripts/scratchpad.sh
