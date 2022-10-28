@@ -1,14 +1,12 @@
-
 " show a visual line under the cursor's current line 
 set cursorline
+
 " show the matching part of the pair for [] {} and ()
 set showmatch
 
-
 "hybrid line numbering mode
 set number
-"set relativenumber
-
+set relativenumber
 
 " search as characters are entered
 set incsearch 
@@ -19,11 +17,18 @@ set ignorecase
 " ... unless they contain at least one capital letter
 set smartcase     
 
+"indents
+set autoindent
 
 "switch : and ;
 nnoremap ; :
 nnoremap : ;
 
+" Remove octal support from 'nrformats'.  This controls how Vim should
+" interpret numbers when pressing |CTRL-A| or |CTRL-X| to increment to decrement
+" a number. By default numbers starting with a 0 are treated as octal numbers,
+" which can be rather confusing, so remove that.
+set nrformats-=octal
 
 " Minimum number of lines to keep above/below cursor.  Keep lines above and
 " below the screen when scrolling up or down. This is useful so you have some
@@ -31,3 +36,9 @@ nnoremap : ;
 "
 " Also see 'sidescrolloff'.
 set scrolloff=5
+
+" Join via IDE
+" https://github.com/JetBrains/ideavim/blob/master/doc/ideajoin-examples.md
+set ideajoin
+
+
