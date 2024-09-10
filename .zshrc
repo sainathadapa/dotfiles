@@ -262,3 +262,13 @@ source $ZSH/oh-my-zsh.sh
 # https://github.com/larkery/zsh-histdb#installation
 source $HOME/.oh-my-zsh/custom/plugins/zsh-histdb/sqlite-history.zsh
 autoload -Uz add-zsh-hook
+
+# Start ssh-agent automatically
+# https://wiki.archlinux.org/title/SSH_keys#SSH_agents
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    ssh-agent -t 1h > "$XDG_RUNTIME_DIR/ssh-agent.env"
+fi
+if [[ ! -f "$SSH_AUTH_SOCK" ]]; then
+    source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
+fi
+
