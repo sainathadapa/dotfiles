@@ -280,3 +280,5 @@ autoload -Uz add-zsh-hook
 # https://iterm2.com/documentation-shell-integration.html
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh" || true
 
+# Keep each iTerm window visually tied to its current Git project.
+[[ -r "$HOME/dotfiles/.iterm-project-identity.zsh" ]] && source "$HOME/dotfiles/.iterm-project-identity.zsh"
