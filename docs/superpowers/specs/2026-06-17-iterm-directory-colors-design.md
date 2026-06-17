@@ -38,6 +38,14 @@ point.
    sequences when the prompt redraws without a directory change.
 5. Outside iTerm, the hook remains a no-op.
 
+For the color to occupy the integrated macOS top bar, iTerm uses the Compact
+appearance theme and keeps the tab bar visible when a window has one tab.
+The default profile's custom tab title mirrors the custom window title with
+`\(currentSession.autoName)\(currentSession.user.projectSuffix)`, so Compact
+windows retain the same `task · project` label.
+Existing windows retain their original window style until they are reopened;
+their colored tab strip remains visible in the meantime.
+
 For windows containing multiple tabs, each tab retains its directory color and
 the visible window chrome follows the active tab.
 
@@ -64,3 +72,6 @@ Shell tests will cover:
 - Cached redraws producing no output.
 - Existing title variables and badge removal remaining intact.
 - Non-iTerm shells remaining unaffected.
+- A fresh Compact window showing the color across the integrated title/tab bar.
+- Changing to a subdirectory changing that integrated bar to the expected
+  deterministic color.

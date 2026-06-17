@@ -311,6 +311,21 @@ Expected: JSON listing each open session path and its applied color.
 
 - [ ] **Step 4: Visually verify the title bar**
 
+Set iTerm's appearance theme to Compact and keep the tab bar visible for a
+single tab. Through the Python API, these preferences are:
+
+```text
+TabStyleWithAutomaticOption = 6
+HideTab = false
+Use Custom Tab Title = true
+Custom Tab Title = \(currentSession.autoName)\(currentSession.user.projectSuffix)
+```
+
+Compact window styling is selected when a window is created, so use a
+disposable fresh window for verification instead of restarting existing
+sessions with running work. Apply the custom tab-title expression to existing
+tabs through `tab.async_set_title()` so their labels update immediately.
+
 Capture the desktop:
 
 ```bash
@@ -319,7 +334,8 @@ screencapture -x /tmp/iterm-directory-colors-check.png
 
 Verify that the visible iTerm title bar has the balanced pastel associated with
 its current directory, title text remains readable, and the terminal
-background is unchanged.
+background is unchanged. Change into a subdirectory and verify that the
+integrated title/tab bar switches to that directory's expected color.
 
 - [ ] **Step 5: Stop the visual-companion server**
 
