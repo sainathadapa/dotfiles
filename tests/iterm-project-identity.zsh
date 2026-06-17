@@ -200,14 +200,35 @@ assert_contains \
   "clears the badge format at home"
 
 cd "$tmpdir/alpha-repo/nested/path"
+iterm_project_identity_update > "$tmpdir/user-var-helper-output"
+user_var_helper_output=$(<"$tmpdir/user-var-helper-output")
+assert_contains \
+  "$user_var_helper_output" \
+  "VAR:directoryBadge:$directory_key;" \
+  "establishes the badge while the user-variable helper is available"
+
 unfunction iterm2_set_user_var
-unset ITERM_PROJECT_IDENTITY_LAST_KEY
 iterm_project_identity_update > "$tmpdir/no-user-var-helper-output"
 no_user_var_helper_output=$(<"$tmpdir/no-user-var-helper-output")
 assert_contains \
   "$no_user_var_helper_output" \
   "$expected_empty_directory_badge_control" \
   "clears the badge when the user-variable helper is unavailable"
+
+iterm2_set_user_var() {
+  print -rn -- "VAR:$1:$2;"
+}
+
+iterm_project_identity_update > "$tmpdir/restored-user-var-helper-output"
+restored_user_var_helper_output=$(<"$tmpdir/restored-user-var-helper-output")
+assert_contains \
+  "$restored_user_var_helper_output" \
+  "VAR:directoryBadge:$directory_key;" \
+  "restores the directory badge variable when the user-variable helper returns"
+assert_contains \
+  "$restored_user_var_helper_output" \
+  "$(iterm_project_identity_set_badge_format '\(user.directoryBadge)')" \
+  "restores the badge format when the user-variable helper returns"
 
 TERM_PROGRAM=Apple_Terminal
 unset ITERM_PROJECT_IDENTITY_LAST_KEY

@@ -72,6 +72,15 @@ iterm_project_identity_set_chrome_color() {
     $'\e]6;1;bg;red;brightness;'"$red"$'\a\e]6;1;bg;green;brightness;'"$green"$'\a\e]6;1;bg;blue;brightness;'"$blue"$'\a'
 }
 
+iterm_project_identity_set_badge_format() {
+  emulate -L zsh
+
+  local format=$1
+  local encoded
+  encoded=$(print -rn -- "$format" | base64)
+  print -rn -- $'\e]1337;SetBadgeFormat='"$encoded"$'\a'
+}
+
 iterm_project_identity_update() {
   emulate -L zsh
 
@@ -80,14 +89,18 @@ iterm_project_identity_update() {
   typeset -g ZSH_THEME_TERM_TITLE_IDLE='%n@%m'
   typeset -g ZSH_THEME_TERM_TAB_TITLE_IDLE='%n@%m'
 
-  local project directory_key color suffix
+  local project directory_key color suffix badge_value badge_format
   project=$(iterm_project_identity_name "$PWD")
   directory_key=$(iterm_project_identity_directory_key "$PWD")
 
+  badge_value=""
+  badge_format=""
   if [[ $directory_key == "~" ]]; then
     color=default
   else
     color=$(iterm_project_identity_color "$directory_key")
+    badge_value=$directory_key
+    badge_format='\(user.directoryBadge)'
   fi
 
   if [[ -n $project ]]; then
@@ -96,18 +109,25 @@ iterm_project_identity_update() {
     suffix=""
   fi
 
-  local key="$project|$directory_key|$color"
+  local -i has_user_var=$+functions[iterm2_set_user_var]
+  local key="$project|$directory_key|$color|$has_user_var"
   [[ ${ITERM_PROJECT_IDENTITY_LAST_KEY-} == $key ]] && return 0
   typeset -g ITERM_PROJECT_IDENTITY_LAST_KEY=$key
 
-  (( $+functions[iterm2_set_user_var] )) && iterm2_set_user_var project "$project"
-  (( $+functions[iterm2_set_user_var] )) && iterm2_set_user_var projectSuffix "$suffix"
+  if (( has_user_var )); then
+    iterm2_set_user_var project "$project"
+    iterm2_set_user_var projectSuffix "$suffix"
+    iterm2_set_user_var directoryBadge "$badge_value"
+  else
+    badge_format=""
+  fi
 
   if (( $+functions[it2setcolor] || $+commands[it2setcolor] )); then
     it2setcolor tab "$color"
   fi
 
   iterm_project_identity_set_chrome_color "$color"
+  iterm_project_identity_set_badge_format "$badge_format"
 }
 
 if [[ -o interactive && ${TERM_PROGRAM-} == "iTerm.app" ]]; then
