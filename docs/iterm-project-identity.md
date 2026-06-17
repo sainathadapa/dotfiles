@@ -5,6 +5,7 @@
 - Each directory gets a stable, reproducible pastel color.
 - Changing directories updates the color automatically.
 - Home remains neutral instead of receiving a color.
+- A translucent background badge shows the home-relative current path.
 - Titles show `task · project`; each tab has its own identity.
 - New or reopened windows display color across the integrated top bar.
 
@@ -16,8 +17,8 @@ used only for the project suffix in the title, so directories inside a
 monorepo can have different colors while retaining the same project name.
 
 The prompt hook updates after each command, caches unchanged state, resets the
-color at home, and does nothing outside iTerm. It does not change the terminal
-background or display a badge.
+color and hides the badge at home, and does nothing outside iTerm. It does not
+change the terminal background.
 
 ## iTerm settings
 

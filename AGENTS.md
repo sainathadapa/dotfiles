@@ -17,8 +17,9 @@ The macOS setup gives every exact current directory a stable pastel identity:
 - Home is neutral and resets iTerm's tab and title chrome.
 - Titles use `task · project`; the project suffix comes from the Git root.
 - Each tab keeps its own identity, and the active tab controls window chrome.
-- The terminal background is unchanged, no badge is shown, and non-iTerm
-  shells are unaffected.
+- A large translucent badge shows the canonical home-relative current path.
+- Home clears the badge; non-iTerm shells remain unaffected.
+- The terminal background itself is unchanged.
 
 Implementation and tests:
 
@@ -29,6 +30,10 @@ Implementation and tests:
 
 Do not change the hashing input, palette order, home reset, title variables, or
 prompt-hook caching without updating the focused tests.
+
+The badge format must remain the fixed expression
+`\(user.directoryBadge)`. Store paths in the user variable rather than
+embedding them in the badge format, so unusual path characters remain data.
 
 ## Required iTerm state
 
