@@ -103,6 +103,18 @@ assert_equal \
   "$catalog_chrome" \
   "emits the title chrome RGB controls"
 
+directory_badge_control=$(iterm_project_identity_set_badge_format '\(user.directoryBadge)')
+assert_equal \
+  $'\e]1337;SetBadgeFormat=XCh1c2VyLmRpcmVjdG9yeUJhZGdlKQ==\a' \
+  "$directory_badge_control" \
+  "emits the fixed directory badge format"
+
+expected_empty_directory_badge_control=$'\e]1337;SetBadgeFormat=\a'
+assert_equal \
+  "$expected_empty_directory_badge_control" \
+  "$(iterm_project_identity_set_badge_format "")" \
+  "emits the empty directory badge format"
+
 TERM_PROGRAM=iTerm.app
 HOME="$tmpdir/home"
 
@@ -130,7 +142,14 @@ assert_contains \
   "$output" \
   "$(iterm_project_identity_set_chrome_color "$directory_color")" \
   "sets the directory title chrome color"
-[[ $output != *SetBadgeFormat* ]] || fail "does not render an always-visible badge"
+assert_contains \
+  "$output" \
+  "VAR:directoryBadge:$directory_key;" \
+  "sets the normalized directory badge variable"
+assert_contains \
+  "$output" \
+  "$(iterm_project_identity_set_badge_format '\(user.directoryBadge)')" \
+  "renders the directory badge"
 assert_equal "%n@%m" "${ZSH_THEME_TERM_TITLE_IDLE-}" "keeps the idle title distinct from the project"
 assert_equal "%n@%m" "${ZSH_THEME_TERM_TAB_TITLE_IDLE-}" "keeps the idle tab name distinct from the project"
 
@@ -142,10 +161,24 @@ mkdir -p "$tmpdir/alpha-repo/another-path"
 cd "$tmpdir/alpha-repo/another-path"
 iterm_project_identity_update > "$tmpdir/changed-directory-output"
 changed_directory_output=$(<"$tmpdir/changed-directory-output")
+changed_directory_key=$(iterm_project_identity_directory_key "$PWD")
+assert_contains \
+  "$changed_directory_output" \
+  "VAR:directoryBadge:$changed_directory_key;" \
+  "updates the badge for another directory in the same Git repository"
 assert_contains \
   "$changed_directory_output" \
   "COLOR:tab:" \
   "redraws for another directory in the same Git repository"
+
+cd "$HOME/src/monorepo/services/catalog"
+unset ITERM_PROJECT_IDENTITY_LAST_KEY
+iterm_project_identity_update > "$tmpdir/home-relative-output"
+home_relative_output=$(<"$tmpdir/home-relative-output")
+assert_contains \
+  "$home_relative_output" \
+  "VAR:directoryBadge:~/src/monorepo/services/catalog;" \
+  "sets a home-relative directory badge beneath home"
 
 cd "$HOME"
 iterm_project_identity_update > "$tmpdir/neutral-output"
@@ -157,7 +190,24 @@ assert_contains \
   "$neutral_output" \
   $'\e]6;1;bg;*;default\a' \
   "restores the default title chrome at home"
-[[ $neutral_output != *SetBadgeFormat* ]] || fail "does not render a badge at home"
+assert_contains \
+  "$neutral_output" \
+  "VAR:directoryBadge:;" \
+  "clears the directory badge variable at home"
+assert_contains \
+  "$neutral_output" \
+  "$expected_empty_directory_badge_control" \
+  "clears the badge format at home"
+
+cd "$tmpdir/alpha-repo/nested/path"
+unfunction iterm2_set_user_var
+unset ITERM_PROJECT_IDENTITY_LAST_KEY
+iterm_project_identity_update > "$tmpdir/no-user-var-helper-output"
+no_user_var_helper_output=$(<"$tmpdir/no-user-var-helper-output")
+assert_contains \
+  "$no_user_var_helper_output" \
+  "$expected_empty_directory_badge_control" \
+  "clears the badge when the user-variable helper is unavailable"
 
 TERM_PROGRAM=Apple_Terminal
 unset ITERM_PROJECT_IDENTITY_LAST_KEY
