@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+set -u
+
+record_command() {
+  if [[ -n "${YABAI_COMMAND_LOG:-}" ]]; then
+    printf '%s\n' "$*" >> "$YABAI_COMMAND_LOG"
+  fi
+}
+
+print_payload() {
+  local value="$1"
+  local fallback="$2"
+
+  if [[ -n "$value" && -f "$value" ]]; then
+    cat "$value"
+  elif [[ -n "$value" ]]; then
+    printf '%s\n' "$value"
+  else
+    printf '%s\n' "$fallback"
+  fi
+}
+
+if [[ "$#" -ge 3 && "$1" == "-m" && "$2" == "query" ]]; then
+  case "$3" in
+    --displays)
+      if [[ "$#" -ge 4 && "$4" == "--display" ]]; then
+        print_payload "${YABAI_STUB_CURRENT_DISPLAY:-}" '{"index":1}'
+      else
+        print_payload "${YABAI_STUB_DISPLAYS:-}" '[{"index":1}]'
+      fi
+      exit 0
+      ;;
+    --spaces)
+      if [[ "$#" -ge 4 && "$4" == "--space" ]]; then
+        print_payload "${YABAI_STUB_CURRENT_SPACE:-}" '{"index":1}'
+      else
+        print_payload "${YABAI_STUB_SPACES:-}" '[{"index":1}]'
+      fi
+      exit 0
+      ;;
+    --windows)
+      if [[ "$#" -ge 4 && "$4" == "--window" ]]; then
+        if [[ "${YABAI_STUB_WINDOW_FAIL:-0}" == "1" ]]; then
+          exit 1
+        fi
+        print_payload "${YABAI_STUB_WINDOW:-}" '{"id":42,"space":1,"is-minimized":false,"is-floating":false}'
+      else
+        print_payload "${YABAI_STUB_WINDOWS:-}" '[{"id":42,"title":"Main","space":1,"is-minimized":false,"is-floating":false}]'
+      fi
+      exit 0
+      ;;
+  esac
+fi
+
+record_command "$*"
+exit "${YABAI_STUB_COMMAND_STATUS:-0}"
