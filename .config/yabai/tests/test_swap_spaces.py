@@ -1,4 +1,6 @@
 import json
+import contextlib
+import io
 import pathlib
 import sys
 import unittest
@@ -73,7 +75,7 @@ class SwapSpacesTests(unittest.TestCase):
         self.assertIn(["space", "space-1", "--move", "9"], runner.calls)
         self.assertIn(["space", "space-9", "--move", "1"], runner.calls)
 
-    def test_swap_visible_spaces_rejects_one_visible_space(self):
+    def test_swap_visible_spaces_noops_with_one_visible_space(self):
         spaces = [
             {"index": 1, "label": "", "display": 1, "is-visible": True},
             {"index": 2, "label": "", "display": 1, "is-visible": False},
@@ -85,8 +87,32 @@ class SwapSpacesTests(unittest.TestCase):
             json.dumps(spaces),
         ])
 
-        with self.assertRaisesRegex(RuntimeError, "expected exactly 2 visible spaces"):
-            swap_spaces.swap_visible_spaces(runner)
+        stderr = io.StringIO()
+        with contextlib.redirect_stderr(stderr):
+            self.assertEqual(0, swap_spaces.swap_visible_spaces(runner))
+
+        self.assertIn("expected 2 visible spaces, found 1", stderr.getvalue())
+        self.assertNotIn(["space", "space-1", "--display", "1"], runner.calls)
+
+    def test_swap_visible_spaces_noops_with_three_visible_spaces(self):
+        spaces = [
+            {"index": 1, "label": "", "display": 1, "is-visible": True},
+            {"index": 2, "label": "", "display": 2, "is-visible": True},
+            {"index": 3, "label": "", "display": 3, "is-visible": True},
+        ]
+        runner = FakeRunner([
+            json.dumps(spaces),
+            "",
+            "",
+            "",
+            json.dumps(spaces),
+        ])
+
+        stderr = io.StringIO()
+        with contextlib.redirect_stderr(stderr):
+            self.assertEqual(0, swap_spaces.swap_visible_spaces(runner))
+
+        self.assertIn("unsupported display count 3", stderr.getvalue())
 
     def test_query_spaces_rejects_invalid_json(self):
         runner = FakeRunner(["not json"])

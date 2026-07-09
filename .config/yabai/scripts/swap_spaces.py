@@ -48,8 +48,13 @@ def swap_visible_spaces(runner=run_yabai):
     spaces = query_spaces(runner)
     visible_spaces = visible_space_pairs(spaces)
 
+    if len(visible_spaces) == 1:
+        print("expected 2 visible spaces, found 1", file=sys.stderr)
+        return 0
+
     if len(visible_spaces) != 2:
-        raise RuntimeError(f"expected exactly 2 visible spaces, found {len(visible_spaces)}")
+        print(f"unsupported display count {len(visible_spaces)}", file=sys.stderr)
+        return 0
 
     first_label, first_display = visible_spaces[0]
     second_label, second_display = visible_spaces[1]
