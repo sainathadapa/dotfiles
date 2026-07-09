@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -u
+
+if [[ -n "${OPEN_COMMAND_LOG:-}" ]]; then
+  printf '%s\n' "$*" >> "$OPEN_COMMAND_LOG"
+fi
+
+exit "${OPEN_STUB_STATUS:-0}"

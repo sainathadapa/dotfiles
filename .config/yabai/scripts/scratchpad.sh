@@ -1,29 +1,41 @@
 #!/usr/bin/env bash
-set -e
-set -o pipefail
+set -euo pipefail
 
-scratchpad_id=$(yabai -m query --windows | jq '.[] | select(.title=="Scratchpad").id')
-is_minimized=$(yabai -m query --windows --window "$scratchpad_id" | jq '.minimized')
-scratchpad_space=$(yabai -m query --windows --window "$scratchpad_id" | jq '.space')
-current_space=$(yabai -m query --spaces --space | jq '.index')
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+. "$SCRIPT_DIR/lib/yabai_helpers.sh"
 
-# if the scratchpad is not minimized and it is on the current space, then minimize it
-if [ $is_minimized -eq 0 ]; then
-  if [ $current_space -eq $scratchpad_space ]; then
-    yabai -m window "$scratchpad_id" --minimize
-    exit 1
-  fi
+find_scratchpad_id() {
+  yabai -m query --windows | jq -r 'map(select(.title == "Scratchpad")) | .[0].id // empty'
+}
+
+scratchpad_id="$(find_scratchpad_id)"
+
+if [[ -z "$scratchpad_id" ]]; then
+  "$SCRIPT_DIR/open_iterm_scratchpad_profile.sh" || true
+  scratchpad_id="$(find_scratchpad_id)"
 fi
 
-# move the scratchpad to the current space
+if [[ -z "$scratchpad_id" ]]; then
+  log_warn "Scratchpad window not found"
+  exit 0
+fi
+
+window_json="$(yabai -m query --windows --window "$scratchpad_id")"
+is_minimized="$(printf '%s\n' "$window_json" | jq -r '."is-minimized"')"
+scratchpad_space="$(printf '%s\n' "$window_json" | jq -r '.space')"
+current_space="$(current_space_index)"
+
+if [[ "$is_minimized" == "false" && "$scratchpad_space" -eq "$current_space" ]]; then
+  yabai -m window "$scratchpad_id" --minimize
+  exit 0
+fi
+
 yabai -m window "$scratchpad_id" --space "$current_space"
-# focus the scratchpad
 yabai -m window --focus "$scratchpad_id"
-# make it floating if it is not already
-is_floating=$(yabai -m query --windows --window "$scratchpad_id" | jq '.floating')
-echo $is_floating
-if [[ "$is_floating" -eq 0 ]]; then
-  yabai -m window --toggle float
+
+window_json="$(yabai -m query --windows --window "$scratchpad_id")"
+is_floating="$(printf '%s\n' "$window_json" | jq -r '."is-floating"')"
+
+if [[ "$is_floating" == "false" ]]; then
+  yabai -m window "$scratchpad_id" --toggle float
 fi
-# yabai -m window --resize abs:1920:1080
-# yabai -m window --move abs:480:540

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -u
+
+if [[ -n "${OSASCRIPT_COMMAND_LOG:-}" ]]; then
+  cat >> "$OSASCRIPT_COMMAND_LOG"
+fi
+
+exit "${OSASCRIPT_STUB_STATUS:-0}"

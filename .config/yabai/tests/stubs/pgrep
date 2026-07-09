@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -u
+
+if [[ "${PGREP_STUB_FOUND:-1}" == "1" ]]; then
+  printf '12345\n'
+  exit 0
+fi
+
+exit 1
