@@ -2,6 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+# shellcheck source=.config/yabai/scripts/lib/yabai_helpers.sh
 . "$SCRIPT_DIR/lib/yabai_helpers.sh"
 
 given_space_index="${1:?space index required}"

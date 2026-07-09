@@ -2,6 +2,12 @@
 set -euo pipefail
 
 REPO_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)"
+PYTHON_CACHE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/yabai-python-cache.XXXXXX")"
+
+cleanup() {
+  rm -rf "$PYTHON_CACHE_DIR"
+}
+trap cleanup EXIT
 
 cd "$REPO_ROOT"
 
@@ -22,11 +28,13 @@ bash .config/yabai/tests/test_focus_move.sh
 bash .config/yabai/tests/test_cycle_display.sh
 bash .config/yabai/tests/test_iterm_scratchpad.sh
 
-python3 -m py_compile .config/yabai/scripts/swap_spaces.py .config/yabai/tests/test_swap_spaces.py
-python3 -m unittest discover -s .config/yabai/tests -p 'test_swap_spaces.py'
+PYTHONPYCACHEPREFIX="$PYTHON_CACHE_DIR" \
+  python3 -m py_compile .config/yabai/scripts/swap_spaces.py .config/yabai/tests/test_swap_spaces.py
+PYTHONPYCACHEPREFIX="$PYTHON_CACHE_DIR" \
+  python3 -m unittest discover -s .config/yabai/tests -p 'test_swap_spaces.py'
 
 if command -v shellcheck >/dev/null 2>&1; then
-  shellcheck .config/yabai/scripts/*.sh \
+  shellcheck -x .config/yabai/scripts/*.sh \
     .config/yabai/scripts/lib/*.sh \
     .config/yabai/tests/*.sh \
     .config/yabai/tests/lib/*.sh \

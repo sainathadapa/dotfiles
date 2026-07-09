@@ -6,6 +6,7 @@ REPO_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)"
 TEST_DIR="$REPO_ROOT/.config/yabai/tests"
 SCRIPT_DIR="$REPO_ROOT/.config/yabai/scripts"
 
+# shellcheck source=.config/yabai/tests/lib/test_assertions.sh
 . "$TEST_DIR/lib/test_assertions.sh"
 
 export PATH="$TEST_DIR/stubs:$PATH"
@@ -18,6 +19,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# shellcheck source=.config/yabai/scripts/lib/yabai_helpers.sh
 . "$SCRIPT_DIR/lib/yabai_helpers.sh"
 
 test_display_count() {
