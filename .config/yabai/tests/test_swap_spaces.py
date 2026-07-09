@@ -2,8 +2,10 @@ import json
 import contextlib
 import io
 import pathlib
+import subprocess
 import sys
 import unittest
+from unittest import mock
 
 
 YABAI_ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -92,6 +94,11 @@ class SwapSpacesTests(unittest.TestCase):
             self.assertEqual(0, swap_spaces.swap_visible_spaces(runner))
 
         self.assertIn("expected 2 visible spaces, found 1", stderr.getvalue())
+        self.assertEqual(
+            [["query", "--spaces"]],
+            runner.calls,
+            "one-visible no-op must not label, move, or display spaces",
+        )
         self.assertNotIn(["space", "space-1", "--display", "1"], runner.calls)
 
     def test_swap_visible_spaces_noops_with_three_visible_spaces(self):
@@ -113,12 +120,32 @@ class SwapSpacesTests(unittest.TestCase):
             self.assertEqual(0, swap_spaces.swap_visible_spaces(runner))
 
         self.assertIn("unsupported display count 3", stderr.getvalue())
+        self.assertEqual(
+            [["query", "--spaces"]],
+            runner.calls,
+            "unsupported-visible no-op must not label, move, or display spaces",
+        )
 
     def test_query_spaces_rejects_invalid_json(self):
         runner = FakeRunner(["not json"])
 
         with self.assertRaises(json.JSONDecodeError):
             swap_spaces.query_spaces(runner)
+
+    def test_main_reports_failed_yabai_command(self):
+        failed_proc = subprocess.CompletedProcess(
+            ["yabai", "-m", "query", "--spaces"],
+            returncode=1,
+            stdout="",
+            stderr="permission denied",
+        )
+
+        stderr = io.StringIO()
+        with mock.patch.object(swap_spaces.subprocess, "run", return_value=failed_proc):
+            with contextlib.redirect_stderr(stderr):
+                self.assertEqual(1, swap_spaces.main())
+
+        self.assertIn("swap_spaces: permission denied", stderr.getvalue())
 
 
 if __name__ == "__main__":

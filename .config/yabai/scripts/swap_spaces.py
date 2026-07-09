@@ -43,10 +43,7 @@ def visible_space_pairs(spaces):
 
 def swap_visible_spaces(runner=run_yabai):
     spaces = query_spaces(runner)
-    label_spaces(spaces, runner)
-
-    spaces = query_spaces(runner)
-    visible_spaces = visible_space_pairs(spaces)
+    visible_spaces = [space for space in spaces if space.get("is-visible") is True]
 
     if len(visible_spaces) == 1:
         print("expected 2 visible spaces, found 1", file=sys.stderr)
@@ -55,6 +52,12 @@ def swap_visible_spaces(runner=run_yabai):
     if len(visible_spaces) != 2:
         print(f"unsupported display count {len(visible_spaces)}", file=sys.stderr)
         return 0
+
+    label_spaces(spaces, runner)
+    visible_spaces = [
+        (f"space-{space['index']}", str(space["display"]))
+        for space in visible_spaces
+    ]
 
     first_label, first_display = visible_spaces[0]
     second_label, second_display = visible_spaces[1]

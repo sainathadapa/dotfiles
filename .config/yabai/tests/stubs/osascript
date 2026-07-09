@@ -6,4 +6,23 @@ if [[ -n "${OSASCRIPT_COMMAND_LOG:-}" ]]; then
   cat >> "$OSASCRIPT_COMMAND_LOG"
 fi
 
+if [[ -n "${OSASCRIPT_STUB_COUNT_FILE:-}" ]]; then
+  count=0
+  if [[ -f "$OSASCRIPT_STUB_COUNT_FILE" ]]; then
+    count="$(cat "$OSASCRIPT_STUB_COUNT_FILE")"
+  fi
+  count=$((count + 1))
+  printf '%s\n' "$count" > "$OSASCRIPT_STUB_COUNT_FILE"
+fi
+
+if [[ -n "${OSASCRIPT_STUB_STDERR:-}" ]]; then
+  printf '%s\n' "$OSASCRIPT_STUB_STDERR" >&2
+fi
+
+if [[ -n "${OSASCRIPT_STUB_FAIL_COUNT:-}" && -n "${OSASCRIPT_STUB_COUNT_FILE:-}" ]]; then
+  if [[ "$count" -le "$OSASCRIPT_STUB_FAIL_COUNT" ]]; then
+    exit 1
+  fi
+fi
+
 exit "${OSASCRIPT_STUB_STATUS:-0}"

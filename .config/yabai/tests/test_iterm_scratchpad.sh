@@ -29,7 +29,11 @@ reset_state() {
   : > "$STDERR_LOG"
   export PGREP_STUB_FOUND=1
   export OSASCRIPT_STUB_STATUS=0
+  export OSASCRIPT_STUB_FAIL_COUNT=0
+  export OSASCRIPT_STUB_COUNT_FILE=
+  export OSASCRIPT_STUB_STDERR=
   export OPEN_STUB_STATUS=0
+  export SLEEP_BIN=:
   export YABAI_STUB_CURRENT_SPACE='{"index":3}'
   export YABAI_STUB_WINDOWS='[{"id":88,"title":"Scratchpad","space":3,"is-minimized":false,"is-floating":true}]'
   export YABAI_STUB_WINDOW='{"id":88,"title":"Scratchpad","space":3,"is-minimized":false,"is-floating":true}'
@@ -69,6 +73,23 @@ test_scratchpad_profile_uses_bundle_id() {
   assert_log_contains "$OSASCRIPT_COMMAND_LOG" 'create window with profile "Scratchpad"' "scratchpad profile creates Scratchpad window"
 }
 
+test_scratchpad_profile_retries_until_applescript_ready() {
+  reset_state
+  OSASCRIPT_COUNT_FILE="$(mktemp "${TMPDIR:-/tmp}/osascript-count.XXXXXX")"
+  export OSASCRIPT_STUB_COUNT_FILE="$OSASCRIPT_COUNT_FILE"
+  export OSASCRIPT_STUB_FAIL_COUNT=1
+  "$SCRIPT_DIR/open_iterm_scratchpad_profile.sh"
+  assert_eq "2" "$(cat "$OSASCRIPT_COUNT_FILE")" "scratchpad profile retries after AppleScript readiness failure"
+  rm -f "$OSASCRIPT_COUNT_FILE"
+}
+
+test_scratchpad_profile_opens_iterm_when_process_missing() {
+  reset_state
+  export PGREP_STUB_FOUND=0
+  "$SCRIPT_DIR/open_iterm_scratchpad_profile.sh"
+  assert_log_contains "$OPEN_COMMAND_LOG" '-a /Applications/iTerm.app' "scratchpad profile opens iTerm when not running"
+}
+
 test_scratchpad_present_current_space_minimizes() {
   reset_state
   "$SCRIPT_DIR/scratchpad.sh"
@@ -96,6 +117,8 @@ test_scratchpad_missing_attempts_creation() {
 test_open_iterm_uses_bundle_id
 test_open_iterm_falls_back_to_open
 test_scratchpad_profile_uses_bundle_id
+test_scratchpad_profile_retries_until_applescript_ready
+test_scratchpad_profile_opens_iterm_when_process_missing
 test_scratchpad_present_current_space_minimizes
 test_scratchpad_elsewhere_moves_focuses_and_floats
 test_scratchpad_missing_attempts_creation
