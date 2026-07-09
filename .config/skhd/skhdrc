@@ -72,7 +72,7 @@ ctrl + shift - p : "${HOME}"/.config/yabai/scripts/cycle_projects_reverse.sh
 # Swap spaces across two displays
 ctrl + shift - tab : "${HOME}"/.config/yabai/scripts/swap_spaces.py
 
-# opens iTerm2
+# opens iTerm
 ctrl - return : "${HOME}"/.config/yabai/scripts/open_iterm2.sh
 # ctrl - return : kitty
 
