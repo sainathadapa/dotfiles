@@ -5,11 +5,17 @@ REPO_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)"
 
 cd "$REPO_ROOT"
 
-bash -n .config/yabai/scripts/*.sh
-bash -n .config/yabai/scripts/lib/*.sh
-bash -n .config/yabai/tests/*.sh
-bash -n .config/yabai/tests/lib/*.sh
-bash -n .config/yabai/tests/stubs/*
+check_shell_syntax() {
+  for file in "$@"; do
+    bash -n "$file"
+  done
+}
+
+check_shell_syntax .config/yabai/scripts/*.sh
+check_shell_syntax .config/yabai/scripts/lib/*.sh
+check_shell_syntax .config/yabai/tests/*.sh
+check_shell_syntax .config/yabai/tests/lib/*.sh
+check_shell_syntax .config/yabai/tests/stubs/*
 
 bash .config/yabai/tests/test_helpers.sh
 bash .config/yabai/tests/test_focus_move.sh
