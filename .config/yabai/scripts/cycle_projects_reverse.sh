@@ -1,55 +1,73 @@
 #!/usr/bin/env bash
-set -e
-set -o pipefail
+set -euo pipefail
 
-numDisplays="$(yabai -m query --displays | jq 'length')"
-currentSpace="$(yabai -m query --spaces --space | jq '.index')"
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+. "$SCRIPT_DIR/lib/yabai_helpers.sh"
 
-# If there is only one display, go to the previous display
-if [ $numDisplays -eq 1 ]; then
-  lastSpace="$(yabai -m query --spaces | jq '.[] | .index' | sort -nr | head -n1)" 
-  if [ $currentSpace -eq 1 ]; then
-    yabai -m space --focus $lastSpace
-  else
-    yabai -m space --focus prev
+last_space_index() {
+  yabai -m query --spaces | jq 'map(.index) | max'
+}
+
+focus_pair_preserving_origin() {
+  local current="$1"
+  local first_target="$2"
+  local second_target="$3"
+
+  if ! space_exists "$first_target"; then
+    log_warn "space $first_target does not exist"
+    return 0
   fi
-  exit 1
-fi
 
-# If there are more than three displays, exit
-if [ $numDisplays -gt 3 ]; then
-  exit 0
-fi
+  if ! space_exists "$second_target"; then
+    log_warn "space $second_target does not exist"
+    return 0
+  fi
 
-lastSpaceFirstMonitor="$((8))"
-lastSpaceSecondMonitor="$((16))"
+  if [[ "$current" -le 8 ]]; then
+    yabai -m space --focus "$second_target"
+    yabai -m space --focus "$first_target"
+  else
+    yabai -m space --focus "$first_target"
+    yabai -m space --focus "$second_target"
+  fi
+}
 
-if [ $currentSpace -le $lastSpaceFirstMonitor ]; then
-    currentFirstMonitorSpace=$currentSpace
-    currentSecondMonitorSpace="$(($currentSpace + $lastSpaceSecondMonitor - $lastSpaceFirstMonitor))"
-else
-    currentFirstMonitorSpace="$(($currentSpace - $lastSpaceSecondMonitor + $lastSpaceFirstMonitor))"
-    currentSecondMonitorSpace=$currentSpace
-fi
-# echo $currentFirstMonitorSpace
-# echo $currentSecondMonitorSpace
+num_displays="$(display_count)"
+current_space="$(current_space_index)"
 
-if [ $currentFirstMonitorSpace -le 1 ]; then
-    newFirstMonitorSpace="$((lastSpaceFirstMonitor))"
-else
-    newFirstMonitorSpace="$(($currentFirstMonitorSpace - 1))"
-fi
-firstSpaceSecondMonitor="$(($lastSpaceFirstMonitor + 1))"
-if [ $currentSecondMonitorSpace -le $firstSpaceSecondMonitor ]; then
-    newSecondMonitorSpace="$(($lastSpaceSecondMonitor))"
-else
-    newSecondMonitorSpace="$(($currentSecondMonitorSpace - 1))"
-fi
-# echo $newFirstMonitorSpace
-# echo $newSecondMonitorSpace
+case "$num_displays" in
+  1)
+    last_space="$(last_space_index)"
+    if [[ "$current_space" -eq 1 ]]; then
+      focus_space_if_exists "$last_space"
+    else
+      focus_space_if_exists "$((current_space - 1))"
+    fi
+    ;;
+  2)
+    if [[ "$current_space" -le 8 ]]; then
+      current_first="$current_space"
+      current_second="$((current_space + 8))"
+    else
+      current_first="$((current_space - 8))"
+      current_second="$current_space"
+    fi
 
-if [ $currentSpace -le $lastSpaceFirstMonitor ]; then
-    yabai -m space --focus $newSecondMonitorSpace && yabai -m space --focus $newFirstMonitorSpace
-else
-    yabai -m space --focus $newFirstMonitorSpace && yabai -m space --focus $newSecondMonitorSpace
-fi
+    if [[ "$current_first" -le 1 ]]; then
+      new_first=8
+    else
+      new_first="$((current_first - 1))"
+    fi
+
+    if [[ "$current_second" -le 9 ]]; then
+      new_second=16
+    else
+      new_second="$((current_second - 1))"
+    fi
+
+    focus_pair_preserving_origin "$current_space" "$new_first" "$new_second"
+    ;;
+  *)
+    log_warn "cycle_projects_reverse: unsupported display count $num_displays"
+    ;;
+esac
