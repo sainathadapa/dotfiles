@@ -44,9 +44,9 @@ if [[ "$#" -ge 3 && "$1" == "-m" && "$2" == "query" ]]; then
         if [[ "${YABAI_STUB_WINDOW_FAIL:-0}" == "1" ]]; then
           exit 1
         fi
-        print_payload "${YABAI_STUB_WINDOW:-}" '{"id":42,"space":1,"is-minimized":false,"is-floating":false}'
+        print_payload "${YABAI_STUB_WINDOW:-}" '{"id":42,"space":1,"is-minimized":false,"is-visible":true,"is-floating":false}'
       else
-        print_payload "${YABAI_STUB_WINDOWS:-}" '[{"id":42,"title":"Main","space":1,"is-minimized":false,"is-floating":false}]'
+        print_payload "${YABAI_STUB_WINDOWS:-}" '[{"id":42,"title":"Main","space":1,"is-minimized":false,"is-visible":true,"is-floating":false}]'
       fi
       exit 0
       ;;

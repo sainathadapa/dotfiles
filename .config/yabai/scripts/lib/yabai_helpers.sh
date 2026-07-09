@@ -101,8 +101,12 @@ require_two_displays() {
   local count
 
   count="$(display_count)"
-  if [[ "$count" -ne 2 ]]; then
+  if [[ "$count" -eq 1 ]]; then
     log_warn "$command_name: expected 2 displays, found $count"
+    return 1
+  fi
+  if [[ "$count" -ne 2 ]]; then
+    log_warn "$command_name: unsupported display count $count"
     return 1
   fi
 }

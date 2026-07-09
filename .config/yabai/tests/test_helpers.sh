@@ -83,6 +83,7 @@ test_missing_target_logs_warning() {
 
 test_display_requirement() {
   export YABAI_STUB_DISPLAYS='[{"index":1}]'
+  : > "$STDERR_LOG"
   set +e
   require_two_displays "swap_spaces" 2> "$STDERR_LOG"
   local status="$?"
@@ -90,6 +91,31 @@ test_display_requirement() {
 
   assert_failure "$status" "require_two_displays fails for one display"
   assert_file_contains "$STDERR_LOG" "swap_spaces: expected 2 displays, found 1" "display requirement logs count"
+
+  export YABAI_STUB_DISPLAYS='[{"index":1},{"index":2},{"index":3}]'
+  : > "$STDERR_LOG"
+  set +e
+  require_two_displays "switch_displays" 2> "$STDERR_LOG"
+  status="$?"
+  set -e
+
+  assert_failure "$status" "require_two_displays fails for three displays"
+  assert_file_contains "$STDERR_LOG" "switch_displays: unsupported display count 3" "display requirement logs unsupported count"
+}
+
+test_stub_window_payloads_include_is_visible() {
+  local single_window has_visible windows_array all_have_visible
+
+  export YABAI_STUB_WINDOW='{"id":42,"space":1,"is-minimized":false,"is-visible":true,"is-floating":false}'
+  export YABAI_STUB_WINDOWS='[{"id":42,"title":"Main","space":1,"is-minimized":false,"is-visible":true,"is-floating":false}]'
+
+  single_window="$(yabai -m query --windows --window)"
+  has_visible="$(printf '%s\n' "$single_window" | jq -r 'has("is-visible")')"
+  assert_eq "true" "$has_visible" "single window payload includes is-visible"
+
+  windows_array="$(yabai -m query --windows)"
+  all_have_visible="$(printf '%s\n' "$windows_array" | jq -r 'all(.[]; has("is-visible"))')"
+  assert_eq "true" "$all_have_visible" "windows array payload includes is-visible"
 }
 
 test_display_count
@@ -99,5 +125,6 @@ test_focus_space_if_exists
 test_move_window_to_space_if_exists
 test_missing_target_logs_warning
 test_display_requirement
+test_stub_window_payloads_include_is_visible
 
 printf 'ok - helper tests passed\n'
