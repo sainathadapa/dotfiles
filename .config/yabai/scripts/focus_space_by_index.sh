@@ -1,20 +1,10 @@
 #!/usr/bin/env bash
-set -e
-set -o pipefail
+set -euo pipefail
 
-givenSpaceIndex="$1"
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+. "$SCRIPT_DIR/lib/yabai_helpers.sh"
 
-if [ `~/.config/yabai/scripts/CheckModKeys capslock` -eq 1 ]; then
-  # echo "capslock on"
-  spaceToSwitch="$(($givenSpaceIndex + 10))"
-else
-  # echo "capslock off"
-  spaceToSwitch=$givenSpaceIndex
-fi
+given_space_index="${1:?space index required}"
+target_space="$(target_space_with_capslock_offset "$given_space_index")"
 
-if [ `yabai -m query --spaces --space | jq '.index'` -eq $spaceToSwitch ]; then
-  yabai -m space --focus recent;
-else
-  yabai -m space --focus $spaceToSwitch;
-fi
-
+focus_space_if_exists "$target_space"
