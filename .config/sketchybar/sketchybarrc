@@ -48,6 +48,8 @@ do
   space=(
     space="$sid"
     icon="${SPACE_ICONS[i]}"
+    icon.color=0xff000000
+    icon.highlight_color=0xffffffff
     icon.padding_left=7
     icon.padding_right=7
     background.color=0x40ffffff
