@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
-set -e
-set -o pipefail
+set -euo pipefail
 
-var="$(yabai -m query --displays --display | jq '.index' | awk '{ print ($1 == 2 ? 1 : 2) }')"
-yabai -m display --focus $var
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+# shellcheck source=.config/yabai/scripts/lib/yabai_helpers.sh
+. "$SCRIPT_DIR/lib/yabai_helpers.sh"
+
+if ! require_two_displays "switch_displays"; then
+  exit 0
+fi
+
+current_display="$(current_display_index)"
+if [[ "$current_display" -eq 2 ]]; then
+  yabai -m display --focus 1
+else
+  yabai -m display --focus 2
+fi

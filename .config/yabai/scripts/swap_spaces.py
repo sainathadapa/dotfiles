@@ -1,31 +1,82 @@
-#!/usr/bin/python3
-import subprocess
+#!/usr/bin/env python3
+
 import json
+import subprocess
 import sys
 
-proc_out = subprocess.run(['yabai', '-m', 'query', '--spaces'], stdout=subprocess.PIPE)
-spaces_list = json.loads(proc_out.stdout.decode('utf-8'))
-# label the spaces according to their current index
-for x in spaces_list:
-    subprocess.run(['yabai', '-m', 'space', str(x['index']), '--label', f"space-{x['index']}"])
 
-# get the updated info
-proc_out = subprocess.run(['yabai', '-m', 'query', '--spaces'], stdout=subprocess.PIPE)
-spaces_list = json.loads(proc_out.stdout.decode('utf-8'))
+class YabaiCommandError(RuntimeError):
+    pass
 
-spaces_to_switch = [
-    (str(x['label']), str(x['display']))
-    for x in spaces_list
-    if x['visible'] == 1
-]
-assert len(spaces_to_switch) == 2
-space_1_label, space_1_display = spaces_to_switch[0]
-space_2_label, space_2_display = spaces_to_switch[1]
 
-# move the spaces to the opposite displays
-subprocess.run(['yabai', '-m', 'space', space_1_label, '--display', space_2_display])
-subprocess.run(['yabai', '-m', 'space', space_2_label, '--display', space_1_display])
+def run_yabai(args):
+    proc = subprocess.run(
+        ["yabai", "-m", *args],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        message = proc.stderr.strip() or "yabai command failed"
+        raise YabaiCommandError(message)
+    return proc.stdout
 
-# reorder the spaces
-subprocess.run(['yabai', '-m', 'space', space_1_label, '--move', space_2_label.split('-')[-1]])
-subprocess.run(['yabai', '-m', 'space', space_2_label, '--move', space_1_label.split('-')[-1]])
+
+def query_spaces(runner=run_yabai):
+    return json.loads(runner(["query", "--spaces"]))
+
+
+def label_spaces(spaces, runner=run_yabai):
+    for space in spaces:
+        index = str(space["index"])
+        runner(["space", index, "--label", f"space-{index}"])
+
+
+def visible_space_pairs(spaces):
+    return [
+        (str(space["label"]), str(space["display"]))
+        for space in spaces
+        if space.get("is-visible") is True
+    ]
+
+
+def swap_visible_spaces(runner=run_yabai):
+    spaces = query_spaces(runner)
+    visible_spaces = [space for space in spaces if space.get("is-visible") is True]
+
+    if len(visible_spaces) == 1:
+        print("expected 2 visible spaces, found 1", file=sys.stderr)
+        return 0
+
+    if len(visible_spaces) != 2:
+        print(f"unsupported display count {len(visible_spaces)}", file=sys.stderr)
+        return 0
+
+    label_spaces(spaces, runner)
+    visible_spaces = [
+        (f"space-{space['index']}", str(space["display"]))
+        for space in visible_spaces
+    ]
+
+    first_label, first_display = visible_spaces[0]
+    second_label, second_display = visible_spaces[1]
+
+    runner(["space", first_label, "--display", second_display])
+    runner(["space", second_label, "--display", first_display])
+    runner(["space", first_label, "--move", second_label.split("-")[-1]])
+    runner(["space", second_label, "--move", first_label.split("-")[-1]])
+
+    return 0
+
+
+def main():
+    try:
+        return swap_visible_spaces()
+    except (YabaiCommandError, RuntimeError, json.JSONDecodeError) as exc:
+        print(f"swap_spaces: {exc}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
